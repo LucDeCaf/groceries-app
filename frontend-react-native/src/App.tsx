@@ -8,21 +8,27 @@ import {
     StyleSheet,
     ScrollView,
 } from 'react-native';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { Auth } from '@/components/Auth';
 import { Button, Tab, TabView } from '@rneui/themed';
+import { openConnection } from './lib/powersync';
+import { GroupsPage } from './components/GroupsPage';
+import { SessionContext } from './context/SessionContext';
 
 export default function App() {
     const [loading, setLoading] = useState(true);
     const [session, setSession] = useState<Session | null>(null);
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setLoading(false);
-        });
+        supabase.auth
+            .getSession()
+            .then(({ data: { session } }) => {
+                setSession(session);
+                setLoading(false);
+            })
+            .then(() => openConnection());
 
         supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
@@ -30,39 +36,44 @@ export default function App() {
     }, []);
 
     return (
-        <>
-            {loading ? (
-                <ActivityIndicator />
-            ) : session ? (
-                <Page session={session} setSession={setSession} />
-            ) : (
-                <Auth />
-            )}
+        <SessionContext.Provider value={session}>
+            {loading ? <ActivityIndicator /> : session ? <Page /> : <Auth />}
             <StatusBar style='auto' />
-        </>
+        </SessionContext.Provider>
     );
 }
 
-interface PageProps {
-    session: Session;
-    setSession: Dispatch<SetStateAction<Session | null>>;
-}
-
-function Page({ session, setSession }: PageProps) {
+function Page() {
     const [tabIndex, setTabIndex] = useState(0);
 
     return (
         <View style={styles.page}>
-            <ScrollView style={styles.contentContainer}>
-                <Button>
-                    <Text style={styles.buttonText}>Add an item</Text>
-                </Button>
-            </ScrollView>
+            <TabView value={tabIndex} onChange={setTabIndex}>
+                <TabView.Item style={{ width: '100%', height: '100%' }}>
+                    <GroupsPage />
+                </TabView.Item>
+
+                <TabView.Item
+                    style={{ width: '100%', height: '100%' }}
+                ></TabView.Item>
+
+                <TabView.Item
+                    style={{ width: '100%', height: '100%' }}
+                ></TabView.Item>
+            </TabView>
+
             <View style={styles.footer}>
-                <Tab value={tabIndex} onChange={setTabIndex} variant='primary'>
+                <Tab
+                    value={tabIndex}
+                    onChange={setTabIndex}
+                    variant='primary'
+                    indicatorStyle={{
+                        backgroundColor: 'white',
+                    }}
+                >
+                    <Tab.Item title='Groups' />
                     <Tab.Item title='List' />
-                    <Tab.Item title='List' />
-                    <Tab.Item title='List' />
+                    <Tab.Item title='Profile' />
                 </Tab>
             </View>
         </View>
@@ -73,11 +84,6 @@ const styles = StyleSheet.create({
     page: {
         flex: 1,
     },
-    contentContainer: {
-        flex: 1,
-        padding: 16,
-        paddingTop: 32,
-    },
     buttonText: {
         color: '#fff',
         fontSize: 24,
@@ -87,5 +93,6 @@ const styles = StyleSheet.create({
         shadowColor: 'black',
         shadowRadius: 10,
         shadowOpacity: 0.1,
+        height: 50,
     },
 });

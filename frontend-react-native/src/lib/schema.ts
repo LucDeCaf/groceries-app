@@ -1,4 +1,4 @@
-import { column, Schema, Table } from '@powersync/react-native';
+import { BaseColumnType, column, Schema, Table } from '@powersync/react-native';
 
 const profiles = new Table(
     {
@@ -50,3 +50,12 @@ export const AppSchema = new Schema({
 });
 
 export type Database = (typeof AppSchema)['types'];
+
+export type Group = {
+    id: string;
+    household_id: string;
+    created_at: string;
+    name: string;
+    index: number;
+    is_aisle: 0 | 1;
+};
