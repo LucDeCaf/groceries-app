@@ -4,9 +4,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { AppSchema } from './lib/schema';
 import { SupabaseConnector } from './lib/supabase';
+import { createRouter, RouterProvider } from '@tanstack/react-router';
+import { routeTree } from './routeTree.gen';
 
-async function App() {
-    const powersync = await React.useMemo(async () => {
+const router = createRouter({ routeTree });
+
+declare module '@tanstack/react-router' {
+    interface Register {
+        router: typeof router;
+    }
+}
+
+function App() {
+    const powersync = React.useMemo(() => {
         const powersync = new PowerSyncDatabase({
             schema: AppSchema,
             database: {
@@ -14,7 +24,7 @@ async function App() {
             },
         });
 
-        await powersync.connect(new SupabaseConnector());
+        powersync.connect(new SupabaseConnector());
 
         return powersync;
     }, []);
@@ -24,14 +34,10 @@ async function App() {
     return (
         <PowerSyncContext.Provider value={powersync}>
             <QueryClientProvider client={queryClient}>
-                <Page />
+                <RouterProvider router={router} />
             </QueryClientProvider>
         </PowerSyncContext.Provider>
     );
-}
-
-function Page() {
-    return <main></main>;
 }
 
 export default App;

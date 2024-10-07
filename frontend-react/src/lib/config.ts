@@ -1,5 +1,5 @@
 export const config = {
-    supabaseUrl: process.env.SUPABASE_URL!,
-    supabaseAnonKey: process.env.SUPABASE_ANON_KEY!,
-    powersyncUrl: process.env.POWERSYNC_URL!,
+    supabaseUrl: import.meta.env.VITE_SUPABASE_URL!,
+    supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY!,
+    powersyncUrl: import.meta.env.VITE_POWERSYNC_URL!,
 };
