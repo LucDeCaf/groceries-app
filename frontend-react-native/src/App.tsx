@@ -16,7 +16,8 @@ export default function App() {
     useEffect(() => {
         supabase.auth
             .getSession()
-            .then(({ data: { session } }) => {
+            .then(({ data: { session }, error }) => {
+                if (error) throw error;
                 setSession(session);
                 setLoading(false);
             })

@@ -14,9 +14,15 @@ importers:
       '@journeyapps/react-native-quick-sqlite':
         specifier: ^1.4.0
         version: 1.4.0(react-native@0.74.5(@babel/core@7.25.7)(@babel/preset-env@7.25.7(@babel/core@7.25.7))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+      '@powersync/common':
+        specifier: ^1.19.0
+        version: 1.19.0
+      '@powersync/react':
+        specifier: ^1.4.4
+        version: 1.4.4(@powersync/common@1.19.0)(react@18.2.0)
       '@powersync/react-native':
-        specifier: file:../../powersync-js/packages/react-native/dist
-        version: dist@file:../../powersync-js/packages/react-native/dist
+        specifier: file:../../powersync-js/packages/react-native/lib
+        version: lib@file:../../powersync-js/packages/react-native/lib
       '@react-native-async-storage/async-storage':
         specifier: 1.23.1
         version: 1.23.1(react-native@0.74.5(@babel/core@7.25.7)(@babel/preset-env@7.25.7(@babel/core@7.25.7))(@types/react@18.2.79)(react@18.2.0))
@@ -32,6 +38,9 @@ importers:
       expo-status-bar:
         specifier: ~1.12.1
         version: 1.12.1
+      lib:
+        specifier: link:../../powersync-js/packages/common/lib
+        version: link:../../powersync-js/packages/common/lib
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -982,6 +991,15 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
+  '@powersync/common@1.19.0':
+    resolution: {integrity: sha512-Cb8tzuAJ0ff075vfiuTMBkOqOpdh7xMZriDFhojHERaUnPlEtaHJBoB8TRU8Y0i7dz3v3TBIBYuhJpEzObbejQ==}
+
+  '@powersync/react@1.4.4':
+    resolution: {integrity: sha512-1yv+RzLaS3sQrcN3UWBZxd6Bb7h93yPEBKNlgiP8OTQNfBLOXD3kzwIncwCq7aPwUOor9BL9wXpSF/FHqTZ63Q==}
+    peerDependencies:
+      '@powersync/common': ^1.19.0
+      react: '*'
+
   '@react-native-async-storage/async-storage@1.23.1':
     resolution: {integrity: sha512-Qd2kQ3yi6Y3+AcUlrHxSLlnBvpdCEMVGFlVBneVOjaFaPU61g1huc38g339ysXspwY1QZA2aNhrk/KlHGO+ewA==}
     peerDependencies:
@@ -1748,9 +1766,6 @@ packages:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
 
-  dist@file:../../powersync-js/packages/react-native/dist:
-    resolution: {directory: ../../powersync-js/packages/react-native/dist, type: directory}
-
   dotenv-expand@11.0.6:
     resolution: {integrity: sha512-8NHi73otpWsZGBSZwwknTXS5pqMOrk9+Ssrna8xCaxkzEpU9OTf9R5ArQGVw03//Zmk9MOwLPng9WwndvpAJ5g==}
     engines: {node: '>=12'}
@@ -2439,6 +2454,9 @@ packages:
   join-component@1.1.0:
     resolution: {integrity: sha512-bF7vcQxbODoGK1imE2P9GS9aw4zD0Sd+Hni68IMZLj7zRnquH7dXUmMw9hDI5S/Jzt7q+IyTXN0rSg2GI0IKhQ==}
 
+  js-logger@1.6.1:
+    resolution: {integrity: sha512-yTgMCPXVjhmg28CuUH8CKjU+cIKL/G+zTu4Fn4lQxs8mRFH/03QTNvEFngcxfg/gRDiQAOoyCKmMTOm9ayOzXA==}
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -2501,6 +2519,9 @@ packages:
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
     engines: {node: '>=6'}
+
+  lib@file:../../powersync-js/packages/react-native/lib:
+    resolution: {directory: ../../powersync-js/packages/react-native/lib, type: directory}
 
   lighthouse-logger@1.4.2:
     resolution: {integrity: sha512-gPWxznF6TKmUHrOQjlVo2UbaL2EJ71mb2CCeRs/2qBpi4L/g4LUVc9+3lKQ6DTUZwJswfM7ainGrLO1+fOqa2g==}
@@ -5352,6 +5373,15 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
+  '@powersync/common@1.19.0':
+    dependencies:
+      js-logger: 1.6.1
+
+  '@powersync/react@1.4.4(@powersync/common@1.19.0)(react@18.2.0)':
+    dependencies:
+      '@powersync/common': 1.19.0
+      react: 18.2.0
+
   '@react-native-async-storage/async-storage@1.23.1(react-native@0.74.5(@babel/core@7.25.7)(@babel/preset-env@7.25.7(@babel/core@7.25.7))(@types/react@18.2.79)(react@18.2.0))':
     dependencies:
       merge-options: 3.0.4
@@ -6398,8 +6428,6 @@ snapshots:
     dependencies:
       path-type: 4.0.0
 
-  dist@file:../../powersync-js/packages/react-native/dist: {}
-
   dotenv-expand@11.0.6:
     dependencies:
       dotenv: 16.4.5
@@ -7175,6 +7203,8 @@ snapshots:
 
   join-component@1.1.0: {}
 
+  js-logger@1.6.1: {}
+
   js-tokens@4.0.0: {}
 
   js-yaml@3.14.1:
@@ -7249,6 +7279,8 @@ snapshots:
   kleur@3.0.3: {}
 
   leven@3.1.0: {}
+
+  lib@file:../../powersync-js/packages/react-native/lib: {}
 
   lighthouse-logger@1.4.2:
     dependencies:
