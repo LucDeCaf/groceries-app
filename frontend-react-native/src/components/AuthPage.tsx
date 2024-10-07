@@ -3,7 +3,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Button, Input } from '@rneui/themed';
 import { supabase } from '@/lib/supabase';
 
-export const Auth = () => {
+export const AuthPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);

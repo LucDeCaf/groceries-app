@@ -1,18 +1,10 @@
-import '@azure/core-asynciterator-polyfill';
-import 'react-native-url-polyfill/auto';
 import { StatusBar } from 'expo-status-bar';
-import {
-    ActivityIndicator,
-    View,
-    Text,
-    StyleSheet,
-    ScrollView,
-} from 'react-native';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { Auth } from '@/components/Auth';
-import { Button, Tab, TabView } from '@rneui/themed';
+import { AuthPage } from '@/components/AuthPage';
+import { Tab, TabView } from '@rneui/themed';
 import { openConnection } from './lib/powersync';
 import { GroupsPage } from './components/GroupsPage';
 import { SessionContext } from './context/SessionContext';
@@ -37,13 +29,19 @@ export default function App() {
 
     return (
         <SessionContext.Provider value={session}>
-            {loading ? <ActivityIndicator /> : session ? <Page /> : <Auth />}
+            {loading ? (
+                <ActivityIndicator />
+            ) : session ? (
+                <MainPage />
+            ) : (
+                <AuthPage />
+            )}
             <StatusBar style='auto' />
         </SessionContext.Provider>
     );
 }
 
-function Page() {
+function MainPage() {
     const [tabIndex, setTabIndex] = useState(0);
 
     return (

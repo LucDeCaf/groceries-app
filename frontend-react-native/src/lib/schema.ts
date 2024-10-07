@@ -1,4 +1,4 @@
-import { BaseColumnType, column, Schema, Table } from '@powersync/react-native';
+import { column, Schema, Table } from '@powersync/react-native';
 
 const profiles = new Table(
     {
