@@ -1,79 +1,81 @@
-import { createLazyFileRoute, Link, redirect } from '@tanstack/react-router';
+import { createLazyFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { FormEventHandler, useState } from 'react';
 import { Button } from '../../components/Button';
 import { supabase } from '../../lib/supabase';
 import { AuthForm, FieldSet, Input } from '../../components/AuthForm';
 
 export const Route = createLazyFileRoute('/login/')({
-    component: Page,
+  component: Page,
 });
 
 function Page() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+  const router = useRouter();
 
-    const handleSubmit: FormEventHandler = async (e) => {
-        e.preventDefault();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-        const {
-            data: { session },
-            error,
-        } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+  const handleSubmit: FormEventHandler = async (e) => {
+    e.preventDefault();
 
-        if (!session || error) {
-            alert('Failed to login - please try again.');
-            return;
-        }
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-        throw redirect({ to: '/' });
-    };
+    if (!session || error) {
+      alert('Failed to login - please try again.');
+      return;
+    }
 
-    return (
-        <main className='flex justify-center md:pt-16 p-8'>
-            <AuthForm onSubmit={handleSubmit}>
-                <h1 className='text-center text-xl'>Login to Groceries App</h1>
+    router.navigate({ to: '/' });
+  };
 
-                <div className='flex flex-col gap-4'>
-                    <FieldSet>
-                        <label htmlFor='email'>Email</label>
-                        <Input
-                            id='email'
-                            type='text'
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </FieldSet>
+  return (
+    <main className="flex justify-center md:pt-16 p-8">
+      <AuthForm onSubmit={handleSubmit}>
+        <h1 className="text-center text-xl">Login to Groceries App</h1>
 
-                    <FieldSet>
-                        <label htmlFor='password'>Password</label>
-                        <Input
-                            id='password'
-                            type='password'
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </FieldSet>
-                </div>
+        <div className="flex flex-col gap-4">
+          <FieldSet>
+            <label htmlFor="email">Email</label>
+            <Input
+              id="email"
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </FieldSet>
 
-                <span className='text-center text-sm'>
-                    Don't have an account?{' '}
-                    <Link
-                        className='font-medium text-blue-600 hover:underline'
-                        to='/register'
-                    >
-                        Sign up
-                    </Link>
-                </span>
+          <FieldSet>
+            <label htmlFor="password">Password</label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </FieldSet>
+        </div>
 
-                <Button variant='primary' type='submit'>
-                    Login
-                </Button>
-            </AuthForm>
-        </main>
-    );
+        <span className="text-center text-sm">
+          Don't have an account?{' '}
+          <Link
+            className="font-medium text-blue-600 hover:underline"
+            to="/register"
+          >
+            Sign up
+          </Link>
+        </span>
+
+        <Button variant="primary" type="submit">
+          Login
+        </Button>
+      </AuthForm>
+    </main>
+  );
 }
