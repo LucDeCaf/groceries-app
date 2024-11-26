@@ -1,4 +1,4 @@
-# Groceries App React Frontend
+# Groceries App React Native Frontend
 
 ## Usage
 
@@ -11,22 +11,28 @@ git clone https://github.com/LucDeCaf/groceries-app.git
 2. Install packages using [pnpm](https://pnpm.io/)
 
 ```sh
-cd groceries-app/frontend-react
+cd groceries-app/frontend-react-native
 pnpm install
 ```
 
 3. Configure your local environment
 
 ```env
-VITE_POWERSYNC_URL=https://foo.powersync.journeyapps.com
-VITE_SUPABASE_URL=https://foo.supabase.co
-VITE_SUPABASE_ANON_KEY=foo.bar.baz
+EXPO_PUBLIC_POWERSYNC_URL=https://foo.powersync.journeyapps.com
+EXPO_PUBLIC_SUPABASE_URL=https://foo.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=foo.bar.baz
 ```
 
-4. Run using Vite
+4. Run using Expo
 
 ```sh
-pnpm run dev
+npx expo run:ios
+```
+
+or
+
+```sh
+npx expo run:android
 ```
 
 ## Development
