@@ -28,7 +28,7 @@ export const InteractiveList = ({
         ))
       ) : (
         // Render fallback
-        <ListItem className='p-2'>{noItemsText}</ListItem>
+        <ListItem className='p-2 text-neutral-400'>{noItemsText}</ListItem>
       )}
     </ul>
   );

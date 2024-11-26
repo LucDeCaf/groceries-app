@@ -1,8 +1,11 @@
 import { Link, useRouter } from '@tanstack/react-router';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/auth';
+import { Button } from './Button';
 
 export const Navbar = () => {
   const router = useRouter();
+  const session = useAuth();
 
   function logout() {
     supabase.auth.signOut().then(({ error }) => {
@@ -14,17 +17,30 @@ export const Navbar = () => {
   }
 
   return (
-    <div className='p-2 flex gap-2 shadow-md sticky'>
-      <Link to='/' className='[&.active]:font-bold'>
-        Home
-      </Link>{' '}
-      <Link to='/login' className='[&.active]:font-bold'>
-        Login
-      </Link>{' '}
-      <Link to='/register' className='[&.active]:font-bold'>
-        Register
-      </Link>{' '}
-      <button onClick={logout}>Logout</button>
+    <div className='p-4 flex justify-between shadow-md sticky'>
+      {/* Left */}
+      <div className='flex gap-8'>
+        <Link to='/' className='[&.active]:font-bold'>
+          Home
+        </Link>{' '}
+        <Link to='/login' className='[&.active]:font-bold'>
+          Login
+        </Link>{' '}
+        <Link to='/register' className='[&.active]:font-bold'>
+          Register
+        </Link>{' '}
+      </div>
+
+      {/* Right */}
+      <div className='flex gap-8'>
+        {session ? (
+          <button onClick={logout}>
+            Logged in as <span className='underline'>{session.user.email}</span>
+          </button>
+        ) : (
+          <Link to='/login'>Not logged in</Link>
+        )}
+      </div>
     </div>
   );
 };

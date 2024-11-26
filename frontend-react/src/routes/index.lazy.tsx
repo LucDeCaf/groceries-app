@@ -40,14 +40,19 @@ function Page() {
   }
 
   const { data: groceryItems } = useSuspenseQuery<GroceryItem>({
-    queryKey: ['selected'],
+    queryKey: ['selected_items'],
     query:
       'select * from grocery_items where is_selected = 1 order by name desc;',
   });
 
   const { data: groups } = useSuspenseQuery<Group>({
     queryKey: ['groups'],
-    query: 'select * from groups order by name desc;',
+    query: 'select * from groups where is_aisle = false order by name desc;',
+  });
+
+  const { data: aisles } = useSuspenseQuery<Group>({
+    queryKey: ['aisles'],
+    query: 'select * from groups where is_aisle = true order by name desc;',
   });
 
   return (
@@ -64,6 +69,14 @@ function Page() {
       <InteractiveList
         renderItems={groups.map((item) => item.name)}
         onItemClick={(_e, i) => console.log(`${i}th group clicked`)}
+      />
+
+      <br />
+
+      <h2>All Aisles</h2>
+      <InteractiveList
+        renderItems={aisles.map((item) => item.name)}
+        onItemClick={(_e, i) => console.log(`${i}th aisle clicked`)}
       />
     </main>
   );
