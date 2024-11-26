@@ -15,7 +15,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useAuth } from '@/context/auth';
-import { link } from 'fs';
 
 export const Route = createLazyFileRoute('/')({
   component: () => (
