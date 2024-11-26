@@ -1,19 +1,10 @@
 import { Link, useRouter } from '@tanstack/react-router';
-import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/auth';
+import { logout } from '@/api/auth';
 
 export const Navbar = () => {
   const router = useRouter();
   const session = useAuth();
-
-  function logout() {
-    supabase.auth.signOut().then(({ error }) => {
-      if (error) {
-        console.error(error);
-      }
-    });
-    router.navigate({ to: '/' });
-  }
 
   return (
     <div className='p-4 flex justify-between shadow-md sticky'>
@@ -33,7 +24,12 @@ export const Navbar = () => {
       {/* Right */}
       <div className='flex gap-8'>
         {session ? (
-          <button onClick={logout}>
+          <button
+            onClick={() => {
+              logout();
+              router.navigate({ to: '/login' });
+            }}
+          >
             Logged in as <span className='underline'>{session.user.email}</span>
           </button>
         ) : (
