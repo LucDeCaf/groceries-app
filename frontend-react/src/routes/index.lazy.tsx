@@ -1,9 +1,10 @@
 import { createLazyFileRoute, useRouter } from '@tanstack/react-router';
 import { useSuspenseQuery } from '@powersync/tanstack-react-query';
-import { LiHTMLAttributes, Suspense } from 'react';
+import { Suspense } from 'react';
 import { GroceryItem, Group } from '../lib/schema';
 import { UserResponse } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { InteractiveList } from '../components/InteractiveList';
 
 export const Route = createLazyFileRoute('/')({
   component: () => (
@@ -52,38 +53,18 @@ function Page() {
   return (
     <main className='p-8'>
       <h2>Selected Items</h2>
-      <ul className='border-2 flex flex-col rounded-md'>
-        {groceryItems.length ? (
-          groceryItems.map((item, i) => <ListItem key={i} item={item} />)
-        ) : (
-          <ListItem item={{ name: 'No items' }} />
-        )}
-      </ul>
+      <InteractiveList
+        renderItems={groceryItems.map((item) => item.name)}
+        onItemClick={(_e, i) => console.log(`${i}th grocery item clicked`)}
+      />
 
       <br />
 
       <h2>All Groups</h2>
-      <ul className='border-2 flex flex-col rounded-md'>
-        {groups.map((item, i) => (
-          <ListItem key={i} item={item} />
-        ))}
-      </ul>
+      <InteractiveList
+        renderItems={groups.map((item) => item.name)}
+        onItemClick={(_e, i) => console.log(`${i}th group clicked`)}
+      />
     </main>
-  );
-}
-
-interface Item {
-  name: string;
-}
-
-interface ListItemProps extends LiHTMLAttributes<HTMLLIElement> {
-  item: Item;
-}
-
-function ListItem({ item, ...props }: ListItemProps) {
-  return (
-    <li className='p-2 border-b-2 last:border-b-0' {...props}>
-      {item.name}
-    </li>
   );
 }
