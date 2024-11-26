@@ -59,12 +59,8 @@ export class SupabaseConnector implements PowerSyncBackendConnector {
 
     if (!transaction) return;
 
-    let lastOp;
-
     try {
       for (const op of transaction.crud) {
-        lastOp = op;
-
         const table = this.client.from(op.table);
 
         let result;
@@ -109,5 +105,7 @@ export class SupabaseConnector implements PowerSyncBackendConnector {
         throw e;
       }
     }
+
+    await transaction.complete();
   }
 }
