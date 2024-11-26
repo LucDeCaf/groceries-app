@@ -34,16 +34,16 @@ function Page() {
   };
 
   return (
-    <main className="flex justify-center md:pt-16 p-8">
+    <main className='flex justify-center md:pt-16 p-8'>
       <AuthForm onSubmit={handleSubmit}>
-        <h1 className="text-center text-xl">Login to Groceries App</h1>
+        <h1 className='text-center text-xl'>Login to Groceries App</h1>
 
-        <div className="flex flex-col gap-4">
+        <div className='flex flex-col gap-4'>
           <FieldSet>
-            <label htmlFor="email">Email</label>
+            <label htmlFor='email'>Email</label>
             <Input
-              id="email"
-              type="text"
+              id='email'
+              type='text'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -51,10 +51,10 @@ function Page() {
           </FieldSet>
 
           <FieldSet>
-            <label htmlFor="password">Password</label>
+            <label htmlFor='password'>Password</label>
             <Input
-              id="password"
-              type="password"
+              id='password'
+              type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -62,17 +62,17 @@ function Page() {
           </FieldSet>
         </div>
 
-        <span className="text-center text-sm">
+        <span className='text-center text-sm'>
           Don't have an account?{' '}
           <Link
-            className="font-medium text-blue-600 hover:underline"
-            to="/register"
+            className='font-medium text-blue-600 hover:underline'
+            to='/register'
           >
             Sign up
           </Link>
         </span>
 
-        <Button variant="primary" type="submit">
+        <Button variant='primary' type='submit'>
           Login
         </Button>
       </AuthForm>

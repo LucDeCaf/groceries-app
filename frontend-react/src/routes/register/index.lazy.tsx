@@ -37,15 +37,15 @@ function Page() {
   };
 
   return (
-    <main className="flex justify-center md:pt-16 p-8">
+    <main className='flex justify-center md:pt-16 p-8'>
       <AuthForm onSubmit={handleSubmit}>
-        <h1 className="text-center text-xl">Create an Account</h1>
+        <h1 className='text-center text-xl'>Create an Account</h1>
 
         <FieldSet>
-          <label htmlFor="email">Email</label>
+          <label htmlFor='email'>Email</label>
           <Input
-            id="email"
-            type="text"
+            id='email'
+            type='text'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -53,10 +53,10 @@ function Page() {
         </FieldSet>
 
         <FieldSet>
-          <label htmlFor="password">Password</label>
+          <label htmlFor='password'>Password</label>
           <Input
-            id="password"
-            type="password"
+            id='password'
+            type='password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -64,27 +64,27 @@ function Page() {
         </FieldSet>
 
         <FieldSet>
-          <label htmlFor="confirmPassword">Confirm password</label>
+          <label htmlFor='confirmPassword'>Confirm password</label>
           <Input
-            id="confirmPassword"
-            type="password"
+            id='confirmPassword'
+            type='password'
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
         </FieldSet>
 
-        <span className="text-center text-sm">
+        <span className='text-center text-sm'>
           Already signed up?{' '}
           <Link
-            className="font-medium text-blue-600 hover:underline"
-            to="/login"
+            className='font-medium text-blue-600 hover:underline'
+            to='/login'
           >
             Login
           </Link>
         </span>
 
-        <Button variant="primary">Sign up</Button>
+        <Button variant='primary'>Sign up</Button>
       </AuthForm>
     </main>
   );
