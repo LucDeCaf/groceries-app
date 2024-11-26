@@ -1,6 +1,5 @@
 import { PowerSyncDatabase } from '@powersync/web';
 import { PowerSyncContext } from '@powersync/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { AppSchema } from './lib/schema';
 import { supabase, SupabaseConnector } from './lib/supabase';
@@ -52,14 +51,10 @@ function App() {
     })();
   }, []);
 
-  const queryClient = React.useMemo(() => new QueryClient(), []);
-
   return (
     <AuthContext.Provider value={auth}>
       <PowerSyncContext.Provider value={powersync}>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-        </QueryClientProvider>
+        <RouterProvider router={router} />
       </PowerSyncContext.Provider>
     </AuthContext.Provider>
   );
