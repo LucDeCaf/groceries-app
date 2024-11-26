@@ -66,6 +66,12 @@ const groups_grocery_items = new Table(
   { indexes: {} },
 );
 
+export type GroupGroceryItem = {
+  household_id: string;
+  group_id: string;
+  grocery_item_id: string;
+};
+
 export const AppSchema = new Schema({
   profiles,
   groups,
