@@ -44,25 +44,20 @@ function Page() {
     'select * from grocery_items;',
   );
 
-  const { data: selectedItems } = useSuspenseQuery<GroceryItem>(
-    'select * from grocery_items where is_selected = 1 order by name desc;',
-  );
-
-  const { data: unselectedItems } = useSuspenseQuery<GroceryItem>(
-    'select * from grocery_items where is_selected = 0 order by name desc;',
-  );
-
   const { data: groups } = useSuspenseQuery<Group>(
-    'select * from groups where is_aisle = 0 order by "index" desc;',
+    'select * from groups where is_aisle = 0 order by "index" asc;',
   );
 
   const { data: aisles } = useSuspenseQuery<Group>(
-    'select * from groups where is_aisle = 1 order by "index" desc;',
+    'select * from groups where is_aisle = 1 order by "index" asc;',
   );
 
   const { data: relationships } = useSuspenseQuery<GroupGroceryItem>(
     'select * from groups_grocery_items;',
   );
+
+  const selectedItems = groceryItems.filter((item) => item.is_selected);
+  const unselectedItems = groceryItems.filter((item) => !item.is_selected);
 
   function toggleSelected(item: GroceryItem) {
     console.log(item);
@@ -137,44 +132,12 @@ function Page() {
               <AccordionItem key={i} value={i.toString()}>
                 <AccordionTrigger>{group.name}</AccordionTrigger>
                 <AccordionContent className='flex flex-col gap-2'>
-                  <Popover>
-                    <PopoverTrigger className='w-full border rounded-md p-2 text-base'>
-                      Edit group
-                    </PopoverTrigger>
-                    <PopoverContent>
-                      <ul>
-                        {groupItems.map((item) => (
-                          <li key={item.id} className='flex gap-4 items-center'>
-                            <input
-                              type='checkbox'
-                              checked
-                              onChange={() =>
-                                powersync.execute(
-                                  'delete from groups_grocery_items where group_id = ? and grocery_item_id = ?;',
-                                  [group.id, item.id],
-                                )
-                              }
-                            />
-                            {item.name}
-                          </li>
-                        ))}
-                        {notGroupItems.map((item) => (
-                          <li key={item.id} className='flex gap-4 items-center'>
-                            <input
-                              type='checkbox'
-                              onChange={() =>
-                                powersync.execute(
-                                  'insert into groups_grocery_items (id,household_id,group_id,grocery_item_id) values (uuid(),?,?,?);',
-                                  [householdId, group.id, item.id],
-                                )
-                              }
-                            />
-                            {item.name}
-                          </li>
-                        ))}
-                      </ul>
-                    </PopoverContent>
-                  </Popover>
+                  <EditGroupButton
+                    group={group}
+                    itemsInGroup={groupItems}
+                    itemsNotInGroup={notGroupItems}
+                    householdId={householdId}
+                  />
 
                   {unselectedGroupItems.map((item, i) => (
                     <button
@@ -200,12 +163,48 @@ function Page() {
       <h2 className='text-2xl'>Aisles</h2>
       {aisles.length ? (
         <Accordion type='single' collapsible className='w-full'>
-          {aisles.map((item, i) => (
-            <AccordionItem key={i} value={i.toString()}>
-              <AccordionTrigger>{item.name}</AccordionTrigger>
-              <AccordionContent>WIP</AccordionContent>
-            </AccordionItem>
-          ))}
+          {aisles.map((aisles, i) => {
+            const aisleRels = relationships.filter(
+              (rel) => rel.group_id === aisles.id,
+            );
+
+            const aisleItems = groceryItems.filter((item) =>
+              aisleRels.some((rel) => rel.grocery_item_id === item.id),
+            );
+            const notAisleItems = groceryItems.filter(
+              (item) =>
+                !aisleRels.some((rel) => rel.grocery_item_id === item.id),
+            );
+
+            const unselectedAisleItems = aisleItems.filter(
+              (item) => !item.is_selected,
+            );
+
+            return (
+              <AccordionItem key={i} value={i.toString()}>
+                <AccordionTrigger>{aisles.name}</AccordionTrigger>
+                <AccordionContent className='flex flex-col gap-2'>
+                  <EditGroupButton
+                    group={aisles}
+                    itemsInGroup={aisleItems}
+                    itemsNotInGroup={notAisleItems}
+                    householdId={householdId}
+                  />
+
+                  {unselectedAisleItems.map((item, i) => (
+                    <button
+                      key={i}
+                      className='w-full flex items-center gap-4'
+                      onClick={() => toggleSelected(item)}
+                    >
+                      <span className='text-sm text-gray-400'>&gt;</span>
+                      <span className='text-base'>{item.name}</span>
+                    </button>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
         </Accordion>
       ) : (
         <div className='pt-2 text-gray-500'>• No aisles</div>
@@ -216,4 +215,59 @@ function Page() {
 
 function Loading() {
   return <main className='p-8'>Loading...</main>;
+}
+
+function EditGroupButton({
+  group,
+  itemsInGroup,
+  itemsNotInGroup,
+  householdId,
+}: {
+  group: Group;
+  itemsInGroup: GroceryItem[];
+  itemsNotInGroup: GroceryItem[];
+  householdId: string;
+}) {
+  const powersync = usePowerSync();
+
+  return (
+    <Popover>
+      <PopoverTrigger className='w-full border rounded-md p-2 text-base'>
+        Edit group
+      </PopoverTrigger>
+      <PopoverContent>
+        <ul>
+          {itemsInGroup.map((item) => (
+            <li key={item.id} className='flex gap-4 items-center'>
+              <input
+                type='checkbox'
+                checked
+                onChange={() =>
+                  powersync.execute(
+                    'delete from groups_grocery_items where group_id = ? and grocery_item_id = ?;',
+                    [group.id, item.id],
+                  )
+                }
+              />
+              {item.name}
+            </li>
+          ))}
+          {itemsNotInGroup.map((item) => (
+            <li key={item.id} className='flex gap-4 items-center'>
+              <input
+                type='checkbox'
+                onChange={() =>
+                  powersync.execute(
+                    'insert into groups_grocery_items (id,household_id,group_id,grocery_item_id) values (uuid(),?,?,?);',
+                    [householdId, group.id, item.id],
+                  )
+                }
+              />
+              {item.name}
+            </li>
+          ))}
+        </ul>
+      </PopoverContent>
+    </Popover>
+  );
 }
