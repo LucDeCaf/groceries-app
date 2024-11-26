@@ -1,7 +1,6 @@
 import { Link, useRouter } from '@tanstack/react-router';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/auth';
-import { Button } from './Button';
 
 export const Navbar = () => {
   const router = useRouter();
