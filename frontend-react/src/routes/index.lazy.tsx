@@ -1,7 +1,7 @@
 import { createLazyFileRoute, useRouter } from '@tanstack/react-router';
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useRef } from 'react';
 import { GroceryItem, Group, GroupGroceryItem } from '../lib/schema';
-import { InteractiveList } from '../components/InteractiveList';
+import { ItemsList } from '../components/ItemsList';
 import { usePowerSync, useSuspenseQuery } from '@powersync/react';
 import {
   Accordion,
@@ -71,60 +71,45 @@ function Page() {
 
   return (
     <main className='p-8'>
-      <h2 className='text-2xl'>Selected Items</h2>
+      <HeaderWithAddButton
+        title='Selected items'
+        onClick={() => {
+          const itemName = prompt('Enter the name:', 'Test item');
+          powersync.execute(
+            'insert into grocery_items (id,household_id,name,is_selected) values (uuid(),?,?,true);',
+            [householdId, itemName],
+          );
+        }}
+      />
       {selectedItems.length ? (
-        <InteractiveList
-          renderItems={selectedItems.map((item) => item.name)}
-          onItemClick={(_e, i) => toggleSelected(selectedItems[i])}
-          onDeleteItemClick={(_e, i) => {
-            const item = selectedItems[i];
-            if (confirm(`Permanently delete item '${item.name}'?`)) {
-              powersync.execute('delete from grocery_items where id = ?;', [
-                item.id,
-              ]);
-            }
-          }}
-        />
+        <ItemsList items={selectedItems} onItemClick={toggleSelected} />
       ) : (
         <div>No items</div>
       )}
 
       <br />
 
-      <HeaderWithButton
+      <HeaderWithAddButton
         title='Unselected items'
-        button='Add new item'
         onClick={() => {
           const itemName = prompt('Enter the name:', 'Test item');
           powersync.execute(
-            'insert into grocery_items (id,household_id,name) values (uuid(),?,?);',
+            'insert into grocery_items (id,household_id,name,is_selected) values (uuid(),?,?,false);',
             [householdId, itemName],
           );
         }}
       />
 
       {unselectedItems.length ? (
-        <InteractiveList
-          renderItems={unselectedItems.map((item) => item.name)}
-          onItemClick={(_e, i) => toggleSelected(unselectedItems[i])}
-          onDeleteItemClick={(_e, i) => {
-            const item = unselectedItems[i];
-            if (confirm(`Permanently delete item '${item.name}'?`)) {
-              powersync.execute('delete from grocery_items where id = ?;', [
-                item.id,
-              ]);
-            }
-          }}
-        />
+        <ItemsList items={unselectedItems} onItemClick={toggleSelected} />
       ) : (
         <div>No items</div>
       )}
 
       <br />
 
-      <HeaderWithButton
+      <HeaderWithAddButton
         title='Groups'
-        button='Add new group'
         onClick={() => {
           const groupName = prompt('Enter the group name:', 'Test group');
           if (groupName) {
@@ -164,9 +149,8 @@ function Page() {
 
       <br />
 
-      <HeaderWithButton
+      <HeaderWithAddButton
         title='Aisles'
-        button='Add new aisle'
         onClick={() => {
           const aisleName = prompt('Enter the aisle name:', 'Test aisle');
           if (aisleName) {
@@ -234,7 +218,7 @@ function EditGroupButton({
       </PopoverTrigger>
       <PopoverContent className='flex flex-col gap-4'>
         <h3 className='text-gray-400 text-medium'>Edit {itemLabel}</h3>
-        <hr className='m-0' />
+        <hr />
         <div className='flex gap-4'>
           <input
             className='w-full rounded-sm px-2'
@@ -370,16 +354,19 @@ function GroupsList({
   );
 }
 
-function HeaderWithButton(props: {
+function HeaderWithAddButton(props: {
   title: string;
-  button: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }) {
   return (
-    <div className='w-full flex gap-8 justify-between items-end'>
-      <h2 className='text-2xl'>{props.title}</h2>
-      <Button variant='link' className='text-lg' onClick={props.onClick}>
-        {props.button}
+    <div className='w-full flex gap-4 justify-between items-end h-full'>
+      <h2 className='text-2xl w-full'>{props.title}</h2>
+      <Button
+        variant='secondary'
+        className='text-lg flex justify-center items-center aspect-square p-2 h-full'
+        onClick={props.onClick}
+      >
+        +
       </Button>
     </div>
   );

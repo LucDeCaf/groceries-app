@@ -7,7 +7,7 @@ export const Navbar = () => {
   const session = useAuth();
 
   return (
-    <div className='p-4 flex justify-between shadow-md sticky'>
+    <div className='p-4 flex w-full justify-between shadow-md sticky top-0 z-50 bg-white'>
       {/* Left */}
       <div className='flex gap-8'>
         <Link to='/' className='[&.active]:font-bold'>
@@ -30,10 +30,12 @@ export const Navbar = () => {
               router.navigate({ to: '/login' });
             }}
           >
-            Logged in as <span className='underline'>{session.user.email}</span>
+            <div className='underline w-min overflow-hidden overflow-ellipsis whitespace-nowrap'>
+              Logout
+            </div>
           </button>
         ) : (
-          <Link to='/login'>Not logged in</Link>
+          <Link to='/login'>Login</Link>
         )}
       </div>
     </div>
