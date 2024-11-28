@@ -48,12 +48,16 @@ function Page() {
   const { data: groups } = useSuspenseQuery<Group>(
     'select * from groups where is_aisle = 0 order by "index" asc;',
   );
-  const highestGroupIndex = groups[groups.length - 1].index;
+  const highestGroupIndex = groups.length
+    ? groups[groups.length - 1].index
+    : -1;
 
   const { data: aisles } = useSuspenseQuery<Group>(
     'select * from groups where is_aisle = 1 order by "index" asc;',
   );
-  const highestAisleIndex = aisles[aisles.length - 1].index;
+  const highestAisleIndex = aisles.length
+    ? aisles[aisles.length - 1].index
+    : -1;
 
   const { data: relationships } = useSuspenseQuery<GroupGroceryItem>(
     'select * from groups_grocery_items;',
@@ -84,7 +88,7 @@ function Page() {
       {selectedItems.length ? (
         <ItemsList items={selectedItems} onItemClick={toggleSelected} />
       ) : (
-        <div>No items</div>
+        <div className='pt-2 text-gray-500'>No aisles</div>
       )}
 
       <br />
@@ -103,7 +107,7 @@ function Page() {
       {unselectedItems.length ? (
         <ItemsList items={unselectedItems} onItemClick={toggleSelected} />
       ) : (
-        <div>No items</div>
+        <div className='pt-2 text-gray-500'>No items</div>
       )}
 
       <br />
@@ -144,7 +148,7 @@ function Page() {
           }}
         />
       ) : (
-        <div className='pt-2 text-gray-500'>• No groups</div>
+        <div className='pt-2 text-gray-500'>No items</div>
       )}
 
       <br />
@@ -185,7 +189,7 @@ function Page() {
           }}
         />
       ) : (
-        <div className='pt-2 text-gray-500'>• No aisles</div>
+        <div className='pt-2 text-gray-500'>No aisles</div>
       )}
     </main>
   );
@@ -245,10 +249,10 @@ function EditGroupButton({
             <li key={item.id} className='flex gap-4 items-center'>
               <input
                 type='checkbox'
-                checked
+                defaultChecked
                 onChange={() =>
                   powersync.execute(
-                    'delete`from groups_grocery_items where group_id = ? and grocery_item_id = ?;',
+                    'delete from groups_grocery_items where group_id = ? and grocery_item_id = ?;',
                     [group.id, item.id],
                   )
                 }
