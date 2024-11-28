@@ -1,5 +1,5 @@
 import { createLazyFileRoute, useRouter } from '@tanstack/react-router';
-import { Suspense } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import { GroceryItem, Group, GroupGroceryItem } from '../lib/schema';
 import { InteractiveList } from '../components/InteractiveList';
 import { usePowerSync, useSuspenseQuery } from '@powersync/react';
@@ -138,6 +138,7 @@ function Page() {
 
       {groups.length ? (
         <GroupsList
+          itemLabel='group'
           groups={groups}
           relationships={relationships}
           householdId={householdId}
@@ -179,6 +180,7 @@ function Page() {
 
       {aisles.length ? (
         <GroupsList
+          itemLabel='aisle'
           groups={aisles}
           groceryItems={groceryItems}
           relationships={relationships}
@@ -214,21 +216,47 @@ function EditGroupButton({
   itemsInGroup,
   itemsNotInGroup,
   householdId,
+  itemLabel,
 }: {
   group: Group;
   itemsInGroup: GroceryItem[];
   itemsNotInGroup: GroceryItem[];
   householdId: string;
+  itemLabel: string;
 }) {
   const powersync = usePowerSync();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Popover>
       <PopoverTrigger className='w-full border rounded-md p-2 text-base'>
-        Edit group
+        Edit {itemLabel}
       </PopoverTrigger>
-      <PopoverContent>
-        <ul>
+      <PopoverContent className='flex flex-col gap-4'>
+        <h3 className='text-gray-400 text-medium'>Edit {itemLabel}</h3>
+        <hr className='m-0' />
+        <div className='flex gap-4'>
+          <input
+            className='w-full rounded-sm px-2'
+            type='text'
+            defaultValue={group.name}
+            ref={inputRef}
+          />
+          <Button
+            variant='primary'
+            className='aspect-square h-full p-1 flex items-center'
+            onClick={() => {
+              powersync.execute('update groups set name = ? where id = ?;', [
+                inputRef.current!.value,
+                group.id,
+              ]);
+            }}
+          >
+            ✓
+          </Button>
+        </div>
+        <hr />
+        <ul className='flex flex-col gap-2'>
           {itemsInGroup.map((item) => (
             <li key={item.id} className='flex gap-4 items-center'>
               <input
@@ -269,6 +297,7 @@ interface GroupsListProps {
   groceryItems: GroceryItem[];
   relationships: GroupGroceryItem[];
   householdId: string;
+  itemLabel: string;
   onItemClick?: (item: GroceryItem) => any;
   onDeleteGroupClick?: (group: Group) => any;
 }
@@ -278,6 +307,7 @@ function GroupsList({
   relationships,
   groceryItems,
   householdId,
+  itemLabel,
   onItemClick,
   onDeleteGroupClick,
 }: GroupsListProps) {
@@ -309,6 +339,7 @@ function GroupsList({
                   itemsInGroup={groupItems}
                   itemsNotInGroup={notGroupItems}
                   householdId={householdId}
+                  itemLabel={itemLabel}
                 />
                 <Button
                   variant='danger'
