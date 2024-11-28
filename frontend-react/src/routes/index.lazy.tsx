@@ -143,6 +143,19 @@ function Page() {
           householdId={householdId}
           groceryItems={groceryItems}
           onItemClick={toggleSelected}
+          onDeleteGroupClick={(group) => {
+            if (
+              confirm(
+                `Permanently delete group '${group.name}'?\nGrocery items will not be deleted.`,
+              )
+            ) {
+              powersync.execute('delete from groups where id = ?;', [group.id]);
+              powersync.execute(
+                `update groups set "index" = "index" - 1 where is_aisle = false and "index" > ?;`,
+                [group.index],
+              );
+            }
+          }}
         />
       ) : (
         <div className='pt-2 text-gray-500'>• No groups</div>
@@ -171,6 +184,19 @@ function Page() {
           relationships={relationships}
           householdId={householdId}
           onItemClick={toggleSelected}
+          onDeleteGroupClick={(aisle) => {
+            if (
+              confirm(
+                `Permanently delete aisle '${aisle.name}'?\nGrocery items will not be deleted.`,
+              )
+            ) {
+              powersync.execute('delete from groups where id = ?;', [aisle.id]);
+              powersync.execute(
+                `update groups set "index" = "index" - 1 where is_aisle = true and "index" > ?;`,
+                [aisle.index],
+              );
+            }
+          }}
         />
       ) : (
         <div className='pt-2 text-gray-500'>• No aisles</div>
@@ -210,7 +236,7 @@ function EditGroupButton({
                 checked
                 onChange={() =>
                   powersync.execute(
-                    'delete from groups_grocery_items where group_id = ? and grocery_item_id = ?;',
+                    'delete`from groups_grocery_items where group_id = ? and grocery_item_id = ?;',
                     [group.id, item.id],
                   )
                 }
@@ -243,7 +269,8 @@ interface GroupsListProps {
   groceryItems: GroceryItem[];
   relationships: GroupGroceryItem[];
   householdId: string;
-  onItemClick: (item: GroceryItem) => any;
+  onItemClick?: (item: GroceryItem) => any;
+  onDeleteGroupClick?: (group: Group) => any;
 }
 
 function GroupsList({
@@ -252,6 +279,7 @@ function GroupsList({
   groceryItems,
   householdId,
   onItemClick,
+  onDeleteGroupClick,
 }: GroupsListProps) {
   return (
     <Accordion type='single' collapsible className='w-full'>
@@ -275,18 +303,29 @@ function GroupsList({
           <AccordionItem key={i} value={i.toString()}>
             <AccordionTrigger>{group.name}</AccordionTrigger>
             <AccordionContent className='flex flex-col gap-2'>
-              <EditGroupButton
-                group={group}
-                itemsInGroup={groupItems}
-                itemsNotInGroup={notGroupItems}
-                householdId={householdId}
-              />
+              <div className='flex gap-4'>
+                <EditGroupButton
+                  group={group}
+                  itemsInGroup={groupItems}
+                  itemsNotInGroup={notGroupItems}
+                  householdId={householdId}
+                />
+                <Button
+                  variant='danger'
+                  className='aspect-square'
+                  onClick={() =>
+                    onDeleteGroupClick && onDeleteGroupClick(group)
+                  }
+                >
+                  X
+                </Button>
+              </div>
 
               {unselectedGroupItems.map((item, i) => (
                 <button
                   key={i}
                   className='w-full flex items-center gap-4'
-                  onClick={() => onItemClick(item)}
+                  onClick={() => onItemClick && onItemClick(item)}
                 >
                   <span className='text-sm text-gray-400'>&gt;</span>
                   <span className='text-base'>{item.name}</span>
