@@ -42,7 +42,7 @@ function Page() {
   }>('select household_id from profiles where id = ?;', [user.id]).data[0];
 
   const { data: groceryItems } = useSuspenseQuery<GroceryItem>(
-    'select * from grocery_items;',
+    'select * from grocery_items order by name asc;',
   );
 
   const { data: groups } = useSuspenseQuery<Group>(
@@ -63,7 +63,6 @@ function Page() {
   const unselectedItems = groceryItems.filter((item) => !item.is_selected);
 
   function toggleSelected(item: GroceryItem) {
-    console.log(item);
     powersync.execute(
       'update grocery_items set is_selected = ? where id = ?;',
       [!item.is_selected, item.id],
@@ -77,6 +76,14 @@ function Page() {
         <InteractiveList
           renderItems={selectedItems.map((item) => item.name)}
           onItemClick={(_e, i) => toggleSelected(selectedItems[i])}
+          onDeleteItemClick={(_e, i) => {
+            const item = selectedItems[i];
+            if (confirm(`Permanently delete item '${item.name}'?`)) {
+              powersync.execute('delete from grocery_items where id = ?;', [
+                item.id,
+              ]);
+            }
+          }}
         />
       ) : (
         <div>No items</div>
@@ -100,6 +107,14 @@ function Page() {
         <InteractiveList
           renderItems={unselectedItems.map((item) => item.name)}
           onItemClick={(_e, i) => toggleSelected(unselectedItems[i])}
+          onDeleteItemClick={(_e, i) => {
+            const item = unselectedItems[i];
+            if (confirm(`Permanently delete item '${item.name}'?`)) {
+              powersync.execute('delete from grocery_items where id = ?;', [
+                item.id,
+              ]);
+            }
+          }}
         />
       ) : (
         <div>No items</div>
