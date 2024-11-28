@@ -15,6 +15,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useAuth } from '@/context/auth';
+import { Button } from '@/components/Button';
 
 export const Route = createLazyFileRoute('/')({
   component: () => (
@@ -47,10 +48,12 @@ function Page() {
   const { data: groups } = useSuspenseQuery<Group>(
     'select * from groups where is_aisle = 0 order by "index" asc;',
   );
+  const highestGroupIndex = groups[groups.length - 1].index;
 
   const { data: aisles } = useSuspenseQuery<Group>(
     'select * from groups where is_aisle = 1 order by "index" asc;',
   );
+  const highestAisleIndex = aisles[aisles.length - 1].index;
 
   const { data: relationships } = useSuspenseQuery<GroupGroceryItem>(
     'select * from groups_grocery_items;',
@@ -69,21 +72,6 @@ function Page() {
 
   return (
     <main className='p-8'>
-      <button
-        className='w-full p-2 bg-gray-100 rounded-md font-medium'
-        onClick={() =>
-          powersync.execute(
-            'insert into grocery_items (id,household_id,name) values (uuid(),?,?);',
-            [householdId, prompt('Enter the name:', 'Test item')],
-          )
-        }
-      >
-        Add Item
-      </button>
-
-      <br />
-      <br />
-
       <h2 className='text-2xl'>Selected Items</h2>
       {selectedItems.length ? (
         <InteractiveList
@@ -96,7 +84,18 @@ function Page() {
 
       <br />
 
-      <h2 className='text-2xl'>Unselected Items</h2>
+      <HeaderWithButton
+        title='Unselected items'
+        button='Add new item'
+        onClick={() => {
+          const itemName = prompt('Enter the name:', 'Test item');
+          powersync.execute(
+            'insert into grocery_items (id,household_id,name) values (uuid(),?,?);',
+            [householdId, itemName],
+          );
+        }}
+      />
+
       {unselectedItems.length ? (
         <InteractiveList
           renderItems={unselectedItems.map((item) => item.name)}
@@ -108,104 +107,56 @@ function Page() {
 
       <br />
 
-      <h2 className='text-2xl'>Groups</h2>
+      <HeaderWithButton
+        title='Groups'
+        button='Add new group'
+        onClick={() => {
+          const groupName = prompt('Enter the group name:', 'Test group');
+          if (groupName) {
+            powersync.execute(
+              "insert into groups (id,household_id,name,'index',is_aisle) values (uuid(),?,?,?,false);",
+              [householdId, groupName, highestGroupIndex + 1],
+            );
+          }
+        }}
+      />
+
       {groups.length ? (
-        <Accordion type='single' collapsible className='w-full'>
-          {groups.map((group, i) => {
-            const groupRels = relationships.filter(
-              (rel) => rel.group_id === group.id,
-            );
-
-            const groupItems = groceryItems.filter((item) =>
-              groupRels.some((rel) => rel.grocery_item_id === item.id),
-            );
-            const notGroupItems = groceryItems.filter(
-              (item) =>
-                !groupRels.some((rel) => rel.grocery_item_id === item.id),
-            );
-
-            const unselectedGroupItems = groupItems.filter(
-              (item) => !item.is_selected,
-            );
-
-            return (
-              <AccordionItem key={i} value={i.toString()}>
-                <AccordionTrigger>{group.name}</AccordionTrigger>
-                <AccordionContent className='flex flex-col gap-2'>
-                  <EditGroupButton
-                    group={group}
-                    itemsInGroup={groupItems}
-                    itemsNotInGroup={notGroupItems}
-                    householdId={householdId}
-                  />
-
-                  {unselectedGroupItems.map((item, i) => (
-                    <button
-                      key={i}
-                      className='w-full flex items-center gap-4'
-                      onClick={() => toggleSelected(item)}
-                    >
-                      <span className='text-sm text-gray-400'>&gt;</span>
-                      <span className='text-base'>{item.name}</span>
-                    </button>
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-            );
-          })}
-        </Accordion>
+        <GroupsList
+          groups={groups}
+          relationships={relationships}
+          householdId={householdId}
+          groceryItems={groceryItems}
+          onItemClick={toggleSelected}
+        />
       ) : (
         <div className='pt-2 text-gray-500'>• No groups</div>
       )}
 
       <br />
 
-      <h2 className='text-2xl'>Aisles</h2>
+      <HeaderWithButton
+        title='Aisles'
+        button='Add new aisle'
+        onClick={() => {
+          const aisleName = prompt('Enter the aisle name:', 'Test aisle');
+          if (aisleName) {
+            powersync.execute(
+              "insert into groups (id,household_id,name,'index',is_aisle) values (uuid(),?,?,?,true);",
+              [householdId, aisleName, highestAisleIndex + 1],
+            );
+          }
+        }}
+      />
+
       {aisles.length ? (
-        <Accordion type='single' collapsible className='w-full'>
-          {aisles.map((aisles, i) => {
-            const aisleRels = relationships.filter(
-              (rel) => rel.group_id === aisles.id,
-            );
-
-            const aisleItems = groceryItems.filter((item) =>
-              aisleRels.some((rel) => rel.grocery_item_id === item.id),
-            );
-            const notAisleItems = groceryItems.filter(
-              (item) =>
-                !aisleRels.some((rel) => rel.grocery_item_id === item.id),
-            );
-
-            const unselectedAisleItems = aisleItems.filter(
-              (item) => !item.is_selected,
-            );
-
-            return (
-              <AccordionItem key={i} value={i.toString()}>
-                <AccordionTrigger>{aisles.name}</AccordionTrigger>
-                <AccordionContent className='flex flex-col gap-2'>
-                  <EditGroupButton
-                    group={aisles}
-                    itemsInGroup={aisleItems}
-                    itemsNotInGroup={notAisleItems}
-                    householdId={householdId}
-                  />
-
-                  {unselectedAisleItems.map((item, i) => (
-                    <button
-                      key={i}
-                      className='w-full flex items-center gap-4'
-                      onClick={() => toggleSelected(item)}
-                    >
-                      <span className='text-sm text-gray-400'>&gt;</span>
-                      <span className='text-base'>{item.name}</span>
-                    </button>
-                  ))}
-                </AccordionContent>
-              </AccordionItem>
-            );
-          })}
-        </Accordion>
+        <GroupsList
+          groups={aisles}
+          groceryItems={groceryItems}
+          relationships={relationships}
+          householdId={householdId}
+          onItemClick={toggleSelected}
+        />
       ) : (
         <div className='pt-2 text-gray-500'>• No aisles</div>
       )}
@@ -269,5 +220,82 @@ function EditGroupButton({
         </ul>
       </PopoverContent>
     </Popover>
+  );
+}
+
+interface GroupsListProps {
+  groups: Group[];
+  groceryItems: GroceryItem[];
+  relationships: GroupGroceryItem[];
+  householdId: string;
+  onItemClick: (item: GroceryItem) => any;
+}
+
+function GroupsList({
+  groups,
+  relationships,
+  groceryItems,
+  householdId,
+  onItemClick,
+}: GroupsListProps) {
+  return (
+    <Accordion type='single' collapsible className='w-full'>
+      {groups.map((group, i) => {
+        const groupRels = relationships.filter(
+          (rel) => rel.group_id === group.id,
+        );
+
+        const groupItems = groceryItems.filter((item) =>
+          groupRels.some((rel) => rel.grocery_item_id === item.id),
+        );
+        const notGroupItems = groceryItems.filter(
+          (item) => !groupRels.some((rel) => rel.grocery_item_id === item.id),
+        );
+
+        const unselectedGroupItems = groupItems.filter(
+          (item) => !item.is_selected,
+        );
+
+        return (
+          <AccordionItem key={i} value={i.toString()}>
+            <AccordionTrigger>{group.name}</AccordionTrigger>
+            <AccordionContent className='flex flex-col gap-2'>
+              <EditGroupButton
+                group={group}
+                itemsInGroup={groupItems}
+                itemsNotInGroup={notGroupItems}
+                householdId={householdId}
+              />
+
+              {unselectedGroupItems.map((item, i) => (
+                <button
+                  key={i}
+                  className='w-full flex items-center gap-4'
+                  onClick={() => onItemClick(item)}
+                >
+                  <span className='text-sm text-gray-400'>&gt;</span>
+                  <span className='text-base'>{item.name}</span>
+                </button>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        );
+      })}
+    </Accordion>
+  );
+}
+
+function HeaderWithButton(props: {
+  title: string;
+  button: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+}) {
+  return (
+    <div className='w-full flex gap-8 justify-between items-end'>
+      <h2 className='text-2xl'>{props.title}</h2>
+      <Button variant='link' className='text-lg' onClick={props.onClick}>
+        {props.button}
+      </Button>
+    </div>
   );
 }
