@@ -88,7 +88,7 @@ function Page() {
       {selectedItems.length ? (
         <ItemsList items={selectedItems} onItemClick={toggleSelected} />
       ) : (
-        <div className='pt-2 text-gray-500'>No aisles</div>
+        <div className='pt-2 text-gray-500'>No items</div>
       )}
 
       <br />
